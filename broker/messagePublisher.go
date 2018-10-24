@@ -25,8 +25,8 @@ func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel) *
 	//Declare the exchange
 	err := channel.ExchangeDeclare(
 		config.ExchangeName,
-		"topic",
-		true,
+		config.BindingType.String(),
+		config.Durable,
 		false,
 		false,
 		false,
@@ -40,7 +40,9 @@ func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel) *
 
 func (publisher *messagePublisher) publish(routingKey string, distributedMessage models.IDistributedMessage) error {
 	distributedMessageJSONPayload, err := json.Marshal(distributedMessage.GetData())
-	publisher.errorHandler.LogWarning(err, fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s", distributedMessage))
+	if err != nil {
+		publisher.errorHandler.LogWarning(err, fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s", distributedMessage))
+	}
 
 	publishParams := amqp.Publishing{
 		DeliveryMode:  amqp.Persistent,

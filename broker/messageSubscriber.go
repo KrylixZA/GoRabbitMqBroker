@@ -43,8 +43,8 @@ func newMessageSubscriber(config models.SubscriberConfig, channel *amqp.Channel)
 	//Declare the queue
 	q, err := channel.QueueDeclare(
 		config.QueueName,
-		true,
-		false,
+		config.Durable,
+		config.AutoDeleteQueue,
 		false,
 		false,
 		nil,
@@ -63,26 +63,31 @@ func newMessageSubscriber(config models.SubscriberConfig, channel *amqp.Channel)
 
 	//Bind queue to exchange
 	err = channel.QueueBind(
-		config.QueueName,
+		q.Name,
 		config.RoutingKey,
 		config.ExchangeName,
 		false,
 		nil,
 	)
+	if err != nil {
+		subscriber.errorHandler.LogError(err, "Error occured while binding queue to exchange")
+	}
 
 	return &subscriber
 }
 
 func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandler, distributedMessage models.IDistributedMessage) error {
 	messages, err := subscriber.channel.Consume(
-		subscriber.config.QueueName,
+		subscriber.queue.Name,
 		"", //TODO: Change this consumer name to something real - service name etc.
 		false,
 		false,
 		false,
 		false,
 		nil)
-	subscriber.errorHandler.LogWarning(err, fmt.Sprintf("Error occurred while attempting to consume messages from queue %s", subscriber.config.QueueName))
+	if err != nil {
+		subscriber.errorHandler.LogError(err, fmt.Sprintf("Error occurred while attempting to setup consumer on channel againt queue %s", subscriber.config.QueueName))
+	}
 
 	forever := make(chan bool)
 
@@ -100,7 +105,10 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 			err := json.Unmarshal(message.Body, &distributedMessage)
 			subscriber.errorHandler.LogWarning(err, "An error occurred while trying to load the message body into an instance of IDistributedMessage implementation.")
 
-			handler.HandleMessage(distributedMessage)
+			err = handler.HandleMessage(distributedMessage)
+			if err != nil {
+				subscriber.errorHandler.LogWarning(err, "Error occurred while handler was processing message")
+			}
 			message.Ack(false) //Acknowledge just this message.
 		}
 

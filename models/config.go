@@ -24,26 +24,36 @@ type Config struct {
 //SubscriberConfig describes all the configurations needed to connect to RabbitMQ as a subscriber.
 //QueueName is the name of the queue to subscribe to.
 //ExchangeName is the name of the exchange the queue will be bound to.
+//BindingType is the type of binding used to bind the queue to the exchange.
 //RoutingKey is the routing key (topic based - so can include wildcards) that binds the queue to the exchange.
 //PrefetchCount is the maximum number of messages to be collected from the queue per subscriber connected to the queue.
 //		PrefetchCount can be used to perform, effectively, a Round Robbin load balancing impact.
 //		It is likely that this will need to be tweaked over time as you understand your system more and more.
+//StrictQueueName defines whether the code must validate the queue name, or allow RabbitMQ to generate it's own queue name that has no meaning to us.
+//Durable defines whether or not RabbitMQ should persist messages to cache/disk if they are not acknowledged in the event of a crash or restart of the RabbitMQ server.
+//AutoDeleteQueue defines whether the queue should be automatically deleted or not when there are no more subscribers to the queue.
 type SubscriberConfig struct {
 	QueueName       string            `json:"queueName" doc:"The name of the queue to subscribe to"`
 	ExchangeName    string            `json:"exchangeName" doc:"The name of the exchange the queue is bound to"`
-	BindingType     enums.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue."`
+	BindingType     enums.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
 	RoutingKey      string            `json:"routingKey" doc:"The routing key that binds the queeu to the exchange"`
 	PrefetchCount   int               `json:"prefetchCount" doc:"The maximum amount of messages to consume at once"`
-	StrictQueueName bool              `json:"strictQueueName" doc:"Set to true if queue names must be defined. If false, RabbitMQ will auto-generate queue names."`
+	StrictQueueName bool              `json:"strictQueueName" doc:"Set to true if queue names must be defined. If false, RabbitMQ will auto-generate queue names. Default value is false"`
+	Durable         bool              `json:"durable" doc:"Set to true if RabbitMQ should persist the messages to cache/disk if they are not acknowledged in the event of a crash or restart. Default is false"`
+	AutoDeleteQueue bool              `json:"autoDeleteQueue" doc:"Set to true if the queue should be deleted automatically as soon as there are no more subscribers. Default value is false"`
 }
 
 //PublisherConfig describes all the configurations needed to connect to RabbitMQ as a publisher.
 //ExchangeName is the name that the publisher will publisher to.
 //		The routing key used is determined during runtime when calling the message broker's publish function.
-//
+//BindingType is the type of binding used to bind any queue to the exchange.
+//Durable defines whether or not RabbitMQ should persist messages to cache/disk if they are not acknowledged in the event of a crash or restart of the RabbitMQ server.
+//MandatoryQueueBind is a condition set when publishing to know if a queue is bound to the exchange. If this is set to true, and no queue is bound, publishing will fail.
 type PublisherConfig struct {
-	ExchangeName       string `json:"exchangeName" doc:"The exchange to publish to"`
-	MandatoryQueueBind bool   `json:"mandatoryQueueBind" doc:"Set to true if a queue must be bound to the queue for publishing to be successful. Default is false."`
+	ExchangeName       string            `json:"exchangeName" doc:"The exchange to publish to"`
+	BindingType        enums.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
+	Durable            bool              `json:"durable" doc:"Set to true if RabbitMQ should persist the messages to cache/disk if they are not acknowledged in the event of a crash or restart. Default is false"`
+	MandatoryQueueBind bool              `json:"mandatoryQueueBind" doc:"Set to true if a queue must be bound to the queue for publishing to be successful. Default is false."`
 }
 
 //Validate enforces that the configuration provided to the messageBroker is all well-formed & correct.
@@ -61,6 +71,9 @@ func (config *Config) Validate() error {
 	}
 	if config.VirtualHost == "" {
 		panic("vhost is empty string")
+	}
+	if config.VirtualHost == "/" {
+		config.VirtualHost = ""
 	}
 	if config.SubscriberConfig == nil && config.PublisherConfig == nil {
 		panic("subscriberConfig and publisherConfig are missing. A consumer of the RabbitMQ broker must be a producer, or a consumer, or both")
