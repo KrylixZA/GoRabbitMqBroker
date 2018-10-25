@@ -38,10 +38,15 @@ type messageBroker struct {
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
 func NewMessageSubscriber(rmqConfig models.Config) *messageBroker {
 	broker := messageBroker{
-		config:       rmqConfig,
 		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
 	}
-	err := broker.connect()
+
+	err := rmqConfig.Validate()
+	if err != nil {
+		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+	}
+	broker.config = rmqConfig
+	err = broker.connect()
 	if err != nil {
 		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
@@ -60,10 +65,15 @@ func NewMessageSubscriber(rmqConfig models.Config) *messageBroker {
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
 func NewMessagePublisher(rmqConfig models.Config) *messageBroker {
 	broker := messageBroker{
-		config:       rmqConfig,
 		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
 	}
-	err := broker.connect()
+
+	err := rmqConfig.Validate()
+	if err != nil {
+		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+	}
+	broker.config = rmqConfig
+	err = broker.connect()
 	if err != nil {
 		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
@@ -83,10 +93,15 @@ func NewMessagePublisher(rmqConfig models.Config) *messageBroker {
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
 func NewMessagePublisherSubscriber(rmqConfig models.Config) *messageBroker {
 	broker := messageBroker{
-		config:       rmqConfig,
 		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
 	}
-	err := broker.connect()
+
+	err := rmqConfig.Validate()
+	if err != nil {
+		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+	}
+	broker.config = rmqConfig
+	err = broker.connect()
 	if err != nil {
 		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
@@ -101,14 +116,13 @@ func NewMessagePublisherSubscriber(rmqConfig models.Config) *messageBroker {
 }
 
 //Subscribe provides an endpoint for users who wish to consume distributed messages.
-//The implementation of IMessageHandler must know what implementation of IDistributedMessage the subscriber must parse the data to.
-//The implementation of IDistributedMessage must be a struct that implements IDistributedMessage.
+//The implementation of IMessageHandler must know how to convert a DistributedMessage into their desired struct in order to process the message correctly.
 //The message handler's "HandleMessage" function will be called on demand and asynchronously.
-func (broker *messageBroker) Subscribe(handler processing.IMessageHandler, distributedMessage models.IDistributedMessage) error {
+func (broker *messageBroker) Subscribe(handler processing.IMessageHandler) error {
 	if broker.subscriber == nil {
 		broker.errorHandler.LogError(nil, "RabbitMQ broker was not setup as a subscriber. Cannot subscribe...")
 	}
-	return broker.subscriber.subscribe(handler, distributedMessage)
+	return broker.subscriber.subscribe(handler)
 }
 
 //Publish exposes an endpoint for any users who intend to publish a message.

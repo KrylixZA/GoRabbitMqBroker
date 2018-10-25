@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"reflect"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/errors"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
@@ -76,7 +75,7 @@ func newMessageSubscriber(config models.SubscriberConfig, channel *amqp.Channel)
 	return &subscriber
 }
 
-func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandler, distributedMessage models.IDistributedMessage) error {
+func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandler) error {
 	messages, err := subscriber.channel.Consume(
 		subscriber.queue.Name,
 		"", //TODO: Change this consumer name to something real - service name etc.
@@ -93,20 +92,19 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 
 	go func() {
 		for message := range messages {
-			distributedMessageType := reflect.TypeOf(distributedMessage)
-			if distributedMessageType.Kind() != reflect.Struct {
-				subscriber.errorHandler.LogWarning(nil, "Implementation of IDistributedMessage is not a struct")
+			distributedMessage := models.DistributedMessage{}
+			err = json.Unmarshal(message.Body, &distributedMessage.Data)
+			if err != nil {
+				message.Nack(false, subscriber.config.RequeueOnNack)
+				subscriber.errorHandler.LogWarning(err, "Error occurred while trying to parse message from RabbitMQ to DistributedMessage struct")
 			}
-			iDistributedMessageType := reflect.TypeOf((*models.IDistributedMessage)(nil)).Elem()
-			if !distributedMessageType.Implements(iDistributedMessageType) {
-				subscriber.errorHandler.LogWarning(nil, "IDistributedMessage implementation does not implement IDistributedMessage interface")
-			}
-
-			err := json.Unmarshal(message.Body, &distributedMessage)
-			subscriber.errorHandler.LogWarning(err, "An error occurred while trying to load the message body into an instance of IDistributedMessage implementation.")
+			distributedMessage.CorrelationId = message.CorrelationId
+			distributedMessage.MessageId = message.MessageId
+			distributedMessage.Timestamp = message.Timestamp
 
 			err = handler.HandleMessage(distributedMessage)
 			if err != nil {
+				message.Nack(false, subscriber.config.RequeueOnNack)
 				subscriber.errorHandler.LogWarning(err, "Error occurred while handler was processing message")
 			}
 			message.Ack(false) //Acknowledge just this message.

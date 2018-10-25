@@ -7,5 +7,5 @@ import "github.com/KrylixZA/GoRabbitMqBroker/models"
 //The message handler will be called when a message is ready to be consumed.
 //The message handler will be called in an asynchronous manner.
 type IMessageHandler interface {
-	HandleMessage(disributedMessage models.IDistributedMessage) error
+	HandleMessage(disributedMessage models.DistributedMessage) error
 }

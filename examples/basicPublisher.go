@@ -6,6 +6,7 @@ import (
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
 	"github.com/KrylixZA/GoRabbitMqBroker/enums"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
+	uuid "github.com/satori/go.uuid"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 		RabbitMqHost: "localhost",
 		VirtualHost:  "/",
 		PublisherConfig: &models.PublisherConfig{
-			ExchangeName:       "testExchange",
+			ExchangeName:       "amq.topic",
 			BindingType:        enums.Topic,
 			Durable:            true,
 			MandatoryQueueBind: true,
@@ -45,6 +46,14 @@ func (distributedMessage basicDistributedMessage) GetTimestamp() time.Time {
 	return time.Now()
 }
 
+func (distributedMessage basicDistributedMessage) GetMessageId() string {
+	uuId, _ := uuid.NewV4()
+
+	return uuId.String()
+}
+
 func (distributedMessage basicDistributedMessage) GetCorrelationId() string {
-	return ""
+	uuId, _ := uuid.NewV4()
+
+	return uuId.String()
 }

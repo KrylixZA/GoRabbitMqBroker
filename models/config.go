@@ -32,6 +32,8 @@ type Config struct {
 //StrictQueueName defines whether the code must validate the queue name, or allow RabbitMQ to generate it's own queue name that has no meaning to us.
 //Durable defines whether or not RabbitMQ should persist messages to cache/disk if they are not acknowledged in the event of a crash or restart of the RabbitMQ server.
 //AutoDeleteQueue defines whether the queue should be automatically deleted or not when there are no more subscribers to the queue.
+//RequeueOnNack defines whether or not the message should be requeued in the event of an error while trying to process the message. The default is false.
+//		Override this if you want messages to be replayed until they pass (can potentially bottleneck the queueing by causing errors).
 type SubscriberConfig struct {
 	QueueName       string            `json:"queueName" doc:"The name of the queue to subscribe to"`
 	ExchangeName    string            `json:"exchangeName" doc:"The name of the exchange the queue is bound to"`
@@ -41,6 +43,7 @@ type SubscriberConfig struct {
 	StrictQueueName bool              `json:"strictQueueName" doc:"Set to true if queue names must be defined. If false, RabbitMQ will auto-generate queue names. Default value is false"`
 	Durable         bool              `json:"durable" doc:"Set to true if RabbitMQ should persist the messages to cache/disk if they are not acknowledged in the event of a crash or restart. Default is false"`
 	AutoDeleteQueue bool              `json:"autoDeleteQueue" doc:"Set to true if the queue should be deleted automatically as soon as there are no more subscribers. Default value is false"`
+	RequeueOnNack   bool              `json:"requeueOnNack" doc:"Set to true if messages should be requeued when they are nacked. Default is false"`
 }
 
 //PublisherConfig describes all the configurations needed to connect to RabbitMQ as a publisher.

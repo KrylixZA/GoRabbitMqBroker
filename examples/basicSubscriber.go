@@ -2,7 +2,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/enums"
 
@@ -19,14 +18,15 @@ func main() {
 		RabbitMqHost: "localhost",
 		VirtualHost:  "/",
 		SubscriberConfig: &models.SubscriberConfig{
-			QueueName:       "",
-			ExchangeName:    "testExchange",
+			QueueName:       "myTestQueue",
+			ExchangeName:    "amq.topic",
 			BindingType:     enums.Topic,
 			RoutingKey:      "*",
 			PrefetchCount:   1,
-			StrictQueueName: false,
-			Durable:         false,
+			StrictQueueName: true,
+			Durable:         true,
 			AutoDeleteQueue: false,
+			RequeueOnNack:   true,
 		},
 	}
 
@@ -36,31 +36,14 @@ func main() {
 
 	var subscriber processing.IMessageHandler
 	subscriber = basicSubscriber{}
-
-	broker.Subscribe(subscriber, basicDistributedMessage{})
+	broker.Subscribe(subscriber)
 }
 
 type basicSubscriber struct {
 }
 
-func (subscriber basicSubscriber) HandleMessage(disributedMessage models.IDistributedMessage) error {
-	log.Println(disributedMessage.GetData())
+func (subscriber basicSubscriber) HandleMessage(disributedMessage models.DistributedMessage) error {
+	log.Printf("%+v", disributedMessage)
 
 	return nil
-}
-
-type basicDistributedMessage struct {
-	Data string `json:"data"`
-}
-
-func (distributedMessage basicDistributedMessage) GetData() interface{} {
-	return distributedMessage.Data
-}
-
-func (distributedMessage basicDistributedMessage) GetTimestamp() time.Time {
-	return time.Now()
-}
-
-func (distributedMessage basicDistributedMessage) GetCorrelationId() string {
-	return ""
 }

@@ -48,6 +48,7 @@ func (publisher *messagePublisher) publish(routingKey string, distributedMessage
 		DeliveryMode:  amqp.Persistent,
 		ContentType:   "text/json",
 		CorrelationId: distributedMessage.GetCorrelationId(),
+		MessageId:     distributedMessage.GetMessageId(),
 		Timestamp:     distributedMessage.GetTimestamp(),
 		Body:          distributedMessageJSONPayload,
 	}
@@ -57,11 +58,14 @@ func (publisher *messagePublisher) publish(routingKey string, distributedMessage
 		publisher.config.MandatoryQueueBind,
 		false,
 		publishParams)
-	publisher.errorHandler.LogWarning(err,
-		fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key =%s",
-			publishParams,
-			publisher.config.ExchangeName,
-			routingKey))
+
+	if err != nil {
+		publisher.errorHandler.LogWarning(err,
+			fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key=%s",
+				publishParams,
+				publisher.config.ExchangeName,
+				routingKey))
+	}
 
 	return nil
 }
