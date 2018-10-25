@@ -17,10 +17,8 @@ $ brew services start rabbitmq
 ```
 2. Browse to http://localhost:15672 (this the RabbitMQ management portal).
 3. Login using "guest", "guest".
-4. Create a Virtual Host called 'helloworld'.
-5. Give user 'guest' full permissions to the 'helloworld' Hirtual Host.
-6. Create a Virtual Host called 'logs'.
-7. Give user 'guest' full permissions to the 'logs' Virtual Host.
+4. Create a user "admin" with password "admin".
+5. Give the "admin" user full permissions to the Virtual Host "/".
 
 ### Using this package
 * Before rambo-ing your way through this code, please take a minute to check out the [examples](https://github.com/KrylixZA/GoRabbitMqBroker/tree/master/examples) and read all the comments on all public-facing endpoints.
