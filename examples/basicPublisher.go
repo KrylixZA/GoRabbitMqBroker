@@ -19,7 +19,7 @@ func main() {
 			ExchangeName:       "amq.topic",
 			BindingType:        enums.Topic,
 			Durable:            true,
-			MandatoryQueueBind: true,
+			MandatoryQueueBind: false,
 		},
 	}
 
