@@ -18,11 +18,11 @@ type messageSubscriber struct {
 	errorHandler errors.IHandleError
 }
 
-func newMessageSubscriber(config models.SubscriberConfig, channel *amqp.Channel) *messageSubscriber {
+func newMessageSubscriber(config models.SubscriberConfig, channel *amqp.Channel, errorHandler errors.IHandleError) *messageSubscriber {
 	subscriber := messageSubscriber{
 		config:       config,
 		channel:      channel,
-		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
+		errorHandler: errorHandler,
 	}
 
 	//Declare the exchange
@@ -96,7 +96,8 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 			err = json.Unmarshal(message.Body, &distributedMessage.Data)
 			if err != nil {
 				message.Nack(false, subscriber.config.RequeueOnNack)
-				subscriber.errorHandler.LogWarning(err, "Error occurred while trying to parse message from RabbitMQ to DistributedMessage struct")
+				subscriber.errorHandler.LogWarning(fmt.Sprintf("Error occurred while trying to parse message from RabbitMQ to DistributedMessage struct\n\n%s",
+					err))
 			}
 			distributedMessage.CorrelationId = message.CorrelationId
 			distributedMessage.MessageId = message.MessageId
@@ -105,7 +106,8 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 			err = handler.HandleMessage(distributedMessage)
 			if err != nil {
 				message.Nack(false, subscriber.config.RequeueOnNack)
-				subscriber.errorHandler.LogWarning(err, "Error occurred while handler was processing message")
+				subscriber.errorHandler.LogWarning(fmt.Sprintf("Error occurred while handler was processing message\n\n%s",
+					err))
 			}
 			message.Ack(false) //Acknowledge just this message.
 		}

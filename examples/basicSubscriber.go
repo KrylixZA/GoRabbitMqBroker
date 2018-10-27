@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/enums"
+	"github.com/KrylixZA/GoRabbitMqBroker/errors"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/processing"
 
@@ -30,7 +31,7 @@ func main() {
 		},
 	}
 
-	broker := broker.NewMessageSubscriber(subscriberConfig)
+	broker := broker.NewMessageSubscriber(subscriberConfig, errors.LogErrorHandler{})
 	defer broker.CloseChannel()
 	defer broker.CloseConnection()
 

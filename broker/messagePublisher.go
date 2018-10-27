@@ -15,11 +15,11 @@ type messagePublisher struct {
 	errorHandler errors.IHandleError
 }
 
-func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel) *messagePublisher {
+func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel, errorHandler errors.IHandleError) *messagePublisher {
 	publisher := messagePublisher{
 		config:       config,
 		channel:      channel,
-		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
+		errorHandler: errorHandler,
 	}
 
 	//Declare the exchange
@@ -41,7 +41,9 @@ func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel) *
 func (publisher *messagePublisher) publish(routingKey string, distributedMessage models.IDistributedMessage) error {
 	distributedMessageJSONPayload, err := json.Marshal(distributedMessage.GetData())
 	if err != nil {
-		publisher.errorHandler.LogWarning(err, fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s", distributedMessage))
+		publisher.errorHandler.LogWarning(fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s\n\n",
+			distributedMessage,
+			err))
 	}
 
 	publishParams := amqp.Publishing{
@@ -60,11 +62,11 @@ func (publisher *messagePublisher) publish(routingKey string, distributedMessage
 		publishParams)
 
 	if err != nil {
-		publisher.errorHandler.LogWarning(err,
-			fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key=%s",
-				publishParams,
-				publisher.config.ExchangeName,
-				routingKey))
+		publisher.errorHandler.LogWarning(fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key=%s\n\n%s",
+			publishParams,
+			publisher.config.ExchangeName,
+			routingKey,
+			err))
 	}
 
 	return nil

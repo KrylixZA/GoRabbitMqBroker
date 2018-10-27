@@ -36,9 +36,11 @@ type messageBroker struct {
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the queues and exchanges are defined.
 //		This will not initialize a publisher. As a result, any attempts to publish a message after using this constructor will not succeed.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-func NewMessageSubscriber(rmqConfig models.Config) *messageBroker {
+//IHandleError is some implementation of errors.IHandlerError.
+//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
+func NewMessageSubscriber(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
+		errorHandler: errorHandler,
 	}
 
 	err := rmqConfig.Validate()
@@ -55,7 +57,7 @@ func NewMessageSubscriber(rmqConfig models.Config) *messageBroker {
 		broker.errorHandler.LogError(err, "Failed to create channel")
 	}
 
-	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel)
+	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, errorHandler)
 	return &broker
 }
 
@@ -63,9 +65,11 @@ func NewMessageSubscriber(rmqConfig models.Config) *messageBroker {
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the exchanges are defined.
 //		This will not initialize a subscriber. As a result, any attempts to subscribe to a queue after using this constructor will not succeed.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-func NewMessagePublisher(rmqConfig models.Config) *messageBroker {
+//IHandleError is some implementation of errors.IHandlerError.
+//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
+func NewMessagePublisher(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
+		errorHandler: errorHandler,
 	}
 
 	err := rmqConfig.Validate()
@@ -82,7 +86,7 @@ func NewMessagePublisher(rmqConfig models.Config) *messageBroker {
 		broker.errorHandler.LogError(err, "Failed to create channel")
 	}
 
-	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel)
+	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, errorHandler)
 	return &broker
 }
 
@@ -91,9 +95,11 @@ func NewMessagePublisher(rmqConfig models.Config) *messageBroker {
 //		This constructor should only ever be used if a user of the service needs to consume messages from a queue and publish to an exchange.
 //			It won't always be the case, but this will typically be when a subscriber implements IMessageHandler and then publishes to an exchange from the HandleMessage function.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-func NewMessagePublisherSubscriber(rmqConfig models.Config) *messageBroker {
+//IHandleError is some implementation of errors.IHandlerError.
+//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
+func NewMessagePublisherSubscriber(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errors.LogErrorHandler{}, //TODO: Inject this.
+		errorHandler: errorHandler,
 	}
 
 	err := rmqConfig.Validate()
@@ -110,8 +116,8 @@ func NewMessagePublisherSubscriber(rmqConfig models.Config) *messageBroker {
 		broker.errorHandler.LogError(err, "Failed to create channel")
 	}
 
-	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel)
-	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel)
+	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, errorHandler)
+	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, errorHandler)
 	return &broker
 }
 
