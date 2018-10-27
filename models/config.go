@@ -1,6 +1,10 @@
 package models
 
-import "github.com/KrylixZA/GoRabbitMqBroker/enums"
+import (
+	"errors"
+
+	"github.com/KrylixZA/GoRabbitMqBroker/enums"
+)
 
 //Config describes all the shared configurations needed to connect to RabbitMQ.
 //Username is the username the code will use to connect to the RabbitMQ Broker and the Virtual Host.
@@ -64,22 +68,22 @@ type PublisherConfig struct {
 //		Validate will also enforce that a consumer of the RabbitMQ broker is at least a producer or a consumer (it could be both)
 func (config *Config) Validate() error {
 	if config.Username == "" {
-		panic("username is empty string")
+		return errors.New("username is empty string")
 	}
 	if config.Password == "" {
-		panic("password is empty string")
+		return errors.New("password is empty string")
 	}
 	if config.RabbitMqHost == "" {
-		panic("host is empty string")
+		return errors.New("host is empty string")
 	}
 	if config.VirtualHost == "" {
-		panic("vhost is empty string")
+		return errors.New("vhost is empty string")
 	}
 	if config.VirtualHost == "/" {
 		config.VirtualHost = ""
 	}
 	if config.SubscriberConfig == nil && config.PublisherConfig == nil {
-		panic("subscriberConfig and publisherConfig are missing. A consumer of the RabbitMQ broker must be a producer, or a consumer, or both")
+		return errors.New("subscriberConfig and publisherConfig are missing. A consumer of the RabbitMQ broker must be a producer, or a consumer, or both")
 	}
 	if config.SubscriberConfig != nil {
 		return config.SubscriberConfig.Validate()
@@ -97,13 +101,19 @@ func (config *Config) Validate() error {
 //		Validate will enforce that if the Binding Type is Direct or Topic, a routing key is provided.
 func (config *SubscriberConfig) Validate() error {
 	if config.StrictQueueName && config.QueueName == "" {
-		panic("subscriberConfig.strictQueueName is set to true but subscriberConfig.queueName is empty string. If you wish to use auto-generated queue names, set strictQueueName to false")
+		return errors.New("subscriberConfig.strictQueueName is set to true but subscriberConfig.queueName is empty string. If you wish to use auto-generated queue names, set strictQueueName to false")
 	}
 	if config.ExchangeName == "" {
-		panic("subscriberConfig.exchangeName is empty string. Although RabbitMQ allows for auto-generating exchange names, it becomes complex to manage when binding queues. As such, we force an exchangeName to be supplied in the config")
+		return errors.New("subscriberConfig.exchangeName is empty string. Although RabbitMQ allows for auto-generating exchange names, it becomes complex to manage when binding queues. As such, we force an exchangeName to be supplied in the config")
+	}
+	if config.BindingType < 0 || config.BindingType > 2 {
+		return errors.New("subscriberConfig.bindingType is out of range. Acceptable options are 0 = Fanout, 1 = Direct, 2 = Topic")
 	}
 	if (config.BindingType == enums.Direct || config.BindingType == enums.Topic) && config.RoutingKey == "" {
-		panic("subscriberConfig.routingKey is empty string. Cannot use an empty routing key to bind a queue to an exchange when using Direct or Topic based routing")
+		return errors.New("subscriberConfig.routingKey is empty string. Cannot use an empty routing key to bind a queue to an exchange when using Direct or Topic based routing")
+	}
+	if config.PrefetchCount < 0 {
+		return errors.New("subscriberConfig.prefetchCount cannot be less than zero")
 	}
 
 	return nil
@@ -113,7 +123,10 @@ func (config *SubscriberConfig) Validate() error {
 //		Validate will enforce that an exchange name is provided.
 func (config *PublisherConfig) Validate() error {
 	if config.ExchangeName == "" {
-		panic("publisherConfig.exchangeName is empty string. Although RabbitMQ allows for auto-generating exchange names, it becomes complex to manage when binding queues. As such, we force an exchangeName to be supplied in the config")
+		return errors.New("publisherConfig.exchangeName is empty string. Although RabbitMQ allows for auto-generating exchange names, it becomes complex to manage when binding queues. As such, we force an exchangeName to be supplied in the config")
+	}
+	if config.BindingType < 0 || config.BindingType > 2 {
+		return errors.New("publisherConfig.bindingType is out of range. Acceptable options are 0 = Fanout, 1 = Direct, 2 = Topic")
 	}
 
 	return nil
