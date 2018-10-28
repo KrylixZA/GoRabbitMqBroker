@@ -3,7 +3,7 @@ package broker
 import (
 	"fmt"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/errors"
+	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
 	"github.com/KrylixZA/GoRabbitMqBroker/processing"
 	"github.com/streadway/amqp"
@@ -24,40 +24,40 @@ type IMessageBroker interface {
 }
 
 type messageBroker struct {
-	config       models.Config
-	subscriber   *messageSubscriber
-	publisher    *messagePublisher
-	errorHandler errors.IHandleError
-	connection   *amqp.Connection
-	channel      *amqp.Channel
+	config     models.Config
+	subscriber *messageSubscriber
+	publisher  *messagePublisher
+	logger     logs.ILogger
+	connection *amqp.Connection
+	channel    *amqp.Channel
 }
 
 //NewMessageSubscriber initializes a message broker with a given subscriber config.
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the queues and exchanges are defined.
 //		This will not initialize a publisher. As a result, any attempts to publish a message after using this constructor will not succeed.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//IHandleError is some implementation of errors.IHandlerError.
-//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
-func NewMessageSubscriber(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
+//ILogger is some implementation of logs.ILogger
+//		By using an interface, the user of this endpoint can inject any implementation of ILogger.
+func NewMessageSubscriber(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errorHandler,
+		logger: logger,
 	}
 
 	err := rmqConfig.Validate()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+		broker.logger.LogError(err, "Validation of the configuration failed")
 	}
 	broker.config = rmqConfig
 	err = broker.connect()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
+		broker.logger.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
 	err = broker.createChannel()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to create channel")
+		broker.logger.LogError(err, "Failed to create channel")
 	}
 
-	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, errorHandler)
+	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, logger)
 	return &broker
 }
 
@@ -65,28 +65,28 @@ func NewMessageSubscriber(rmqConfig models.Config, errorHandler errors.IHandleEr
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the exchanges are defined.
 //		This will not initialize a subscriber. As a result, any attempts to subscribe to a queue after using this constructor will not succeed.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//IHandleError is some implementation of errors.IHandlerError.
-//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
-func NewMessagePublisher(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
+//ILogger is some implementation of logs.ILogger
+//		By using an interface, the user of this endpoint can inject any implementation of ILogger.
+func NewMessagePublisher(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errorHandler,
+		logger: logger,
 	}
 
 	err := rmqConfig.Validate()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+		broker.logger.LogError(err, "Validation of the configuration failed")
 	}
 	broker.config = rmqConfig
 	err = broker.connect()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
+		broker.logger.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
 	err = broker.createChannel()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to create channel")
+		broker.logger.LogError(err, "Failed to create channel")
 	}
 
-	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, errorHandler)
+	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, logger)
 	return &broker
 }
 
@@ -95,29 +95,29 @@ func NewMessagePublisher(rmqConfig models.Config, errorHandler errors.IHandleErr
 //		This constructor should only ever be used if a user of the service needs to consume messages from a queue and publish to an exchange.
 //			It won't always be the case, but this will typically be when a subscriber implements IMessageHandler and then publishes to an exchange from the HandleMessage function.
 //It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//IHandleError is some implementation of errors.IHandlerError.
-//		By using an interface, the user of this endpoint can inject any implementation of IHandleError.
-func NewMessagePublisherSubscriber(rmqConfig models.Config, errorHandler errors.IHandleError) *messageBroker {
+//ILogger is some implementation of logs.ILogger
+//		By using an interface, the user of this endpoint can inject any implementation of ILogger.
+func NewMessagePublisherSubscriber(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
-		errorHandler: errorHandler,
+		logger: logger,
 	}
 
 	err := rmqConfig.Validate()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Validation of the configuration failed")
+		broker.logger.LogError(err, "Validation of the configuration failed")
 	}
 	broker.config = rmqConfig
 	err = broker.connect()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to connect to RabbitMQ broker")
+		broker.logger.LogError(err, "Failed to connect to RabbitMQ broker")
 	}
 	err = broker.createChannel()
 	if err != nil {
-		broker.errorHandler.LogError(err, "Failed to create channel")
+		broker.logger.LogError(err, "Failed to create channel")
 	}
 
-	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, errorHandler)
-	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, errorHandler)
+	broker.subscriber = newMessageSubscriber(*rmqConfig.SubscriberConfig, broker.channel, logger)
+	broker.publisher = newMessagePublisher(*rmqConfig.PublisherConfig, broker.channel, logger)
 	return &broker
 }
 
@@ -126,7 +126,7 @@ func NewMessagePublisherSubscriber(rmqConfig models.Config, errorHandler errors.
 //The message handler's "HandleMessage" function will be called on demand and asynchronously.
 func (broker *messageBroker) Subscribe(handler processing.IMessageHandler) error {
 	if broker.subscriber == nil {
-		broker.errorHandler.LogError(nil, "RabbitMQ broker was not setup as a subscriber. Cannot subscribe...")
+		broker.logger.LogError(nil, "RabbitMQ broker was not setup as a subscriber. Cannot subscribe...")
 	}
 	return broker.subscriber.subscribe(handler)
 }
@@ -136,7 +136,7 @@ func (broker *messageBroker) Subscribe(handler processing.IMessageHandler) error
 //Any further interfaces that extend the contract of IDistributedMessage can be added at the will of the user.
 func (broker *messageBroker) Publish(routingKey string, distributedMessage models.IDistributedMessage) error {
 	if broker.publisher == nil {
-		broker.errorHandler.LogError(nil, "RabbitMQ broker was not setup as a publisher. Cannot publish...")
+		broker.logger.LogError(nil, "RabbitMQ broker was not setup as a publisher. Cannot publish...")
 	}
 	return broker.publisher.publish(routingKey, distributedMessage)
 }

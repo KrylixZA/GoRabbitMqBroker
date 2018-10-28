@@ -4,22 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/errors"
+	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
 	"github.com/streadway/amqp"
 )
 
 type messagePublisher struct {
-	config       models.PublisherConfig
-	channel      *amqp.Channel
-	errorHandler errors.IHandleError
+	config  models.PublisherConfig
+	channel *amqp.Channel
+	logger  logs.ILogger
 }
 
-func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel, errorHandler errors.IHandleError) *messagePublisher {
+func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel, logger logs.ILogger) *messagePublisher {
 	publisher := messagePublisher{
-		config:       config,
-		channel:      channel,
-		errorHandler: errorHandler,
+		config:  config,
+		channel: channel,
+		logger:  logger,
 	}
 
 	//Declare the exchange
@@ -41,7 +41,7 @@ func newMessagePublisher(config models.PublisherConfig, channel *amqp.Channel, e
 func (publisher *messagePublisher) publish(routingKey string, distributedMessage models.IDistributedMessage) error {
 	distributedMessageJSONPayload, err := json.Marshal(distributedMessage.GetData())
 	if err != nil {
-		publisher.errorHandler.LogWarning(fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s\n\n",
+		publisher.logger.LogWarning(fmt.Sprintf("Error occurred while creating JSON payload from distributedMessage %s\n\n",
 			distributedMessage,
 			err))
 	}
@@ -62,7 +62,7 @@ func (publisher *messagePublisher) publish(routingKey string, distributedMessage
 		publishParams)
 
 	if err != nil {
-		publisher.errorHandler.LogWarning(fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key=%s\n\n%s",
+		publisher.logger.LogWarning(fmt.Sprintf("Error occurred while publishing args=%+v to exchange=%s with routing key=%s\n\n%s",
 			publishParams,
 			publisher.config.ExchangeName,
 			routingKey,

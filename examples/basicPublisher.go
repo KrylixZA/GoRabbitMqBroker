@@ -5,7 +5,7 @@ import (
 
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
 	"github.com/KrylixZA/GoRabbitMqBroker/enums"
-	"github.com/KrylixZA/GoRabbitMqBroker/errors"
+	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
 	uuid "github.com/satori/go.uuid"
 )
@@ -24,7 +24,7 @@ func main() {
 		},
 	}
 
-	broker := broker.NewMessagePublisher(publisherConfig, errors.LogErrorHandler{})
+	broker := broker.NewMessagePublisher(publisherConfig, logs.Logger{})
 	defer broker.CloseChannel()
 	defer broker.CloseConnection()
 
