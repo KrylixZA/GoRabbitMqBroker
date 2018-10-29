@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/enums"
+	"github.com/KrylixZA/GoRabbitMqBroker/enums/bindingType"
 )
 
 func TestValidate_GivenValidConfig_ShouldReturnNil(t *testing.T) {
@@ -19,7 +19,7 @@ func TestValidate_GivenValidConfig_ShouldReturnNil(t *testing.T) {
 		SubscriberConfig: &SubscriberConfig{
 			QueueName:       "test",
 			ExchangeName:    "test",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "test.*",
 			PrefetchCount:   100,
 			StrictQueueName: true,
@@ -29,7 +29,7 @@ func TestValidate_GivenValidConfig_ShouldReturnNil(t *testing.T) {
 		},
 		PublisherConfig: &PublisherConfig{
 			ExchangeName:       "test",
-			BindingType:        enums.Fanout,
+			BindingType:        bindingtype.Fanout,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},
@@ -52,7 +52,7 @@ func TestValidate_GivenBadUsername_ShouldReturnExpectedError(t *testing.T) {
 		SubscriberConfig: &SubscriberConfig{
 			QueueName:       "test",
 			ExchangeName:    "test",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "test.*",
 			PrefetchCount:   100,
 			StrictQueueName: true,
@@ -62,7 +62,7 @@ func TestValidate_GivenBadUsername_ShouldReturnExpectedError(t *testing.T) {
 		},
 		PublisherConfig: &PublisherConfig{
 			ExchangeName:       "test",
-			BindingType:        enums.Fanout,
+			BindingType:        bindingtype.Fanout,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},
@@ -86,7 +86,7 @@ func TestValidate_GivenBadPassword_ShouldReturnExpectedError(t *testing.T) {
 		SubscriberConfig: &SubscriberConfig{
 			QueueName:       "test",
 			ExchangeName:    "test",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "test.*",
 			PrefetchCount:   100,
 			StrictQueueName: true,
@@ -96,7 +96,7 @@ func TestValidate_GivenBadPassword_ShouldReturnExpectedError(t *testing.T) {
 		},
 		PublisherConfig: &PublisherConfig{
 			ExchangeName:       "test",
-			BindingType:        enums.Fanout,
+			BindingType:        bindingtype.Fanout,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},
@@ -120,7 +120,7 @@ func TestValidate_GivenBadRabbitMqHost_ShouldReturnExpectedError(t *testing.T) {
 		SubscriberConfig: &SubscriberConfig{
 			QueueName:       "test",
 			ExchangeName:    "test",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "test.*",
 			PrefetchCount:   100,
 			StrictQueueName: true,
@@ -130,7 +130,7 @@ func TestValidate_GivenBadRabbitMqHost_ShouldReturnExpectedError(t *testing.T) {
 		},
 		PublisherConfig: &PublisherConfig{
 			ExchangeName:       "test",
-			BindingType:        enums.Fanout,
+			BindingType:        bindingtype.Fanout,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},
@@ -154,7 +154,7 @@ func TestValidate_GivenBadVirtualHost_ShouldReturnExpectedError(t *testing.T) {
 		SubscriberConfig: &SubscriberConfig{
 			QueueName:       "test",
 			ExchangeName:    "test",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "test.*",
 			PrefetchCount:   100,
 			StrictQueueName: true,
@@ -164,7 +164,7 @@ func TestValidate_GivenBadVirtualHost_ShouldReturnExpectedError(t *testing.T) {
 		},
 		PublisherConfig: &PublisherConfig{
 			ExchangeName:       "test",
-			BindingType:        enums.Fanout,
+			BindingType:        bindingtype.Fanout,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},
@@ -200,7 +200,7 @@ func TestValidateSubscriberConfig_GivenValidSubscriberConfig_ShouldReturnNil(t *
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "test",
 		ExchangeName:    "test",
-		BindingType:     enums.Topic,
+		BindingType:     bindingtype.Topic,
 		RoutingKey:      "test.*",
 		PrefetchCount:   100,
 		StrictQueueName: true,
@@ -221,7 +221,7 @@ func TestValidateSubscriberConfig_GivenStrictQueueNameAndBadQueueName_ShouldRetu
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "",
 		ExchangeName:    "test",
-		BindingType:     enums.Topic,
+		BindingType:     bindingtype.Topic,
 		RoutingKey:      "test.*",
 		PrefetchCount:   100,
 		StrictQueueName: true,
@@ -243,7 +243,7 @@ func TestValidateSubscriberConfig_GivenBadExchangeName_ShouldReturnExpectedError
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "test",
 		ExchangeName:    "",
-		BindingType:     enums.Topic,
+		BindingType:     bindingtype.Topic,
 		RoutingKey:      "test.*",
 		PrefetchCount:   100,
 		StrictQueueName: true,
@@ -287,7 +287,7 @@ func TestValidateSubscriberConfig_GivenDirectBindingAndEmptyRoutingKey_ShouldRet
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "test",
 		ExchangeName:    "test",
-		BindingType:     enums.Direct,
+		BindingType:     bindingtype.Direct,
 		RoutingKey:      "",
 		PrefetchCount:   100,
 		StrictQueueName: true,
@@ -309,7 +309,7 @@ func TestValidateSubscriberConfig_GivenTopicBindingAndEmptyRoutingKey_ShouldRetu
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "test",
 		ExchangeName:    "test",
-		BindingType:     enums.Topic,
+		BindingType:     bindingtype.Topic,
 		RoutingKey:      "",
 		PrefetchCount:   100,
 		StrictQueueName: true,
@@ -331,7 +331,7 @@ func TestValidateSubscriberConfig_GivenNegativePrefetchCount_ShouldReturnExpecte
 	subscriberConfig := SubscriberConfig{
 		QueueName:       "test",
 		ExchangeName:    "test",
-		BindingType:     enums.Topic,
+		BindingType:     bindingtype.Topic,
 		RoutingKey:      "test.*",
 		PrefetchCount:   -1,
 		StrictQueueName: true,
@@ -352,7 +352,7 @@ func TestValidatePublisherConfig_GivenValidPublisherConfig_ShouldReturnNil(t *te
 	// Arrange
 	publisherConfig := PublisherConfig{
 		ExchangeName:       "test",
-		BindingType:        enums.Fanout,
+		BindingType:        bindingtype.Fanout,
 		Durable:            true,
 		MandatoryQueueBind: false,
 	}
@@ -368,7 +368,7 @@ func TestValidatePublisherConfig_GivenBadExchangeName_ShouldReturnExpectedError(
 	// Arrange
 	publisherConfig := PublisherConfig{
 		ExchangeName:       "",
-		BindingType:        enums.Fanout,
+		BindingType:        bindingtype.Fanout,
 		Durable:            true,
 		MandatoryQueueBind: false,
 	}

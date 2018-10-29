@@ -141,18 +141,11 @@ func (broker *messageBroker) Publish(routingKey string, distributedMessage model
 	return broker.publisher.publish(routingKey, distributedMessage)
 }
 
-//CloseChannel closes the connection to the RabbitMQ channel.
-//		All connections to the Virtual host, any exchanges declares and any queues declare in the config exist within this channel.
-//It is imperative that this called as a deferred function call after calling a constructor.
-//		This function must be called before calling CloseChannel() as a deferred function call.
-func (broker *messageBroker) CloseChannel() {
-	broker.channel.Close()
-}
-
 //CloseConnection closes the connection to the RabbitMQ broker.
-//It is imperative that this is called as a deferred function call after calling a constructor.
-//		This function must be called after calling CloseChannel() as a deferred function call.
+//		CloseConnection will handle the broker's channel destruction and the connection destruction.
+//		Call this function as a deffered execution after creating a connection to RabbitMQ.
 func (broker *messageBroker) CloseConnection() {
+	broker.channel.Close()
 	broker.connection.Close()
 }
 

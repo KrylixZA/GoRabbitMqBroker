@@ -33,7 +33,6 @@ func main() {
 	}
 
 	broker := broker.NewMessageSubscriber(subscriberConfig, logs.Logger{})
-	defer broker.CloseChannel()
 	defer broker.CloseConnection()
 
 	var subscriber processing.IMessageHandler

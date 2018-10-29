@@ -1,4 +1,4 @@
-package enums
+package bindingtype
 
 //BindingType defines the type of binding a queue will use when binding itself to a queue.
 //		An exchange can be bound to any number of queues, but all must use the same binding type.
