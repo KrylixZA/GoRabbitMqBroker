@@ -3,8 +3,8 @@ package main
 import (
 	"time"
 
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
-	"github.com/KrylixZA/GoRabbitMqBroker/enums"
 	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
 	uuid "github.com/satori/go.uuid"
@@ -18,7 +18,7 @@ func main() {
 		VirtualHost:  "/",
 		PublisherConfig: &models.PublisherConfig{
 			ExchangeName:       "amq.topic",
-			BindingType:        enums.Topic,
+			BindingType:        bindingtype.Topic,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},

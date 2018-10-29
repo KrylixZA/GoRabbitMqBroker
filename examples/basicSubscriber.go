@@ -5,7 +5,7 @@ import (
 
 	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/enums"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/processing"
 
@@ -22,7 +22,7 @@ func main() {
 		SubscriberConfig: &models.SubscriberConfig{
 			QueueName:       "myTestQueue",
 			ExchangeName:    "amq.topic",
-			BindingType:     enums.Topic,
+			BindingType:     bindingtype.Topic,
 			RoutingKey:      "*",
 			PrefetchCount:   1,
 			StrictQueueName: true,
