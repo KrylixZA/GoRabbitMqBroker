@@ -1,4 +1,4 @@
-# GoRabbitMqBroker [![GoDoc](https://godoc.org/github.com/KrylixZA/GoRabbitMqBroker?status.svg)](https://godoc.org/github.com/KrylixZA/GoRabbitMqBroker) [GitHub Pages](https://krylixza.github.io/GoRabbitMqBroker/)
+# GoRabbitMqBroker [![GoDoc](https://godoc.org/github.com/KrylixZA/GoRabbitMqBroker?status.svg)](https://godoc.org/github.com/KrylixZA/GoRabbitMqBroker) [![license](http://img.shields.io/badge/license-MIT-red.svg?style=flat)](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/LICENSE) [GitHub Pages](https://krylixza.github.io/GoRabbitMqBroker/)
 A library of code which abstracts and encapsulates the details of connecting and configuration an AMQP connection a RabbitMQ Broker while still providing the majority of the flexibility gained by referring to the Go AMQP library directly.
 
 ## To install
