@@ -35,8 +35,8 @@ type messageBroker struct {
 //NewMessageSubscriber initializes a message broker with a given subscriber config.
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the queues and exchanges are defined.
 //		This will not initialize a publisher. As a result, any attempts to publish a message after using this constructor will not succeed.
-//It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//ILogger is some implementation of logs.ILogger
+//It is imperative that any users of this defer a call to Close() therafter.
+//ILogger is some implementation of logs.ILogger.
 //		By using an interface, the user of this endpoint can inject any implementation of ILogger.
 func NewMessageSubscriber(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
@@ -64,8 +64,8 @@ func NewMessageSubscriber(rmqConfig models.Config, logger logs.ILogger) *message
 //NewMessagePublisher initializes a message broker with a given publisher config.
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the exchanges are defined.
 //		This will not initialize a subscriber. As a result, any attempts to subscribe to a queue after using this constructor will not succeed.
-//It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//ILogger is some implementation of logs.ILogger
+//It is imperative that any users of this defer a call to Close() therafter.
+//ILogger is some implementation of logs.ILogger.
 //		By using an interface, the user of this endpoint can inject any implementation of ILogger.
 func NewMessagePublisher(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
@@ -94,8 +94,8 @@ func NewMessagePublisher(rmqConfig models.Config, logger logs.ILogger) *messageB
 //		This abstracts away the details of how the connection to RabbitMQ is made and how the queues and exchanges are defined.
 //		This constructor should only ever be used if a user of the service needs to consume messages from a queue and publish to an exchange.
 //			It won't always be the case, but this will typically be when a subscriber implements IMessageHandler and then publishes to an exchange from the HandleMessage function.
-//It is imperative that any users of this defer the calls to CloseChannel and CloseConnection
-//ILogger is some implementation of logs.ILogger
+//It is imperative that any users of this defer a call to Close() therafter.
+//ILogger is some implementation of logs.ILogger.
 //		By using an interface, the user of this endpoint can inject any implementation of ILogger.
 func NewMessagePublisherSubscriber(rmqConfig models.Config, logger logs.ILogger) *messageBroker {
 	broker := messageBroker{
@@ -141,10 +141,10 @@ func (broker *messageBroker) Publish(routingKey string, distributedMessage model
 	return broker.publisher.publish(routingKey, distributedMessage)
 }
 
-//CloseConnection closes the connection to the RabbitMQ broker.
-//		CloseConnection will handle the broker's channel destruction and the connection destruction.
+//Close closes the connection to the RabbitMQ broker.
+//		Close will handle the broker's channel destruction and the connection destruction.
 //		Call this function as a deffered execution after creating a connection to RabbitMQ.
-func (broker *messageBroker) CloseConnection() {
+func (broker *messageBroker) Close() {
 	broker.channel.Close()
 	broker.connection.Close()
 }

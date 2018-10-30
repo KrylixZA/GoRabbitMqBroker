@@ -65,7 +65,7 @@ type PublisherConfig struct {
 
 //Validate enforces that the configuration provided to the messageBroker is all well-formed & correct.
 //		Validate will enforce all the necessary connection string properties are present.
-//		Validate will also enforce that a consumer of the RabbitMQ broker is at least a producer or a consumer (it could be both)
+//		Validate will also enforce that a consumer of the RabbitMQ broker is at least a producer or a consumer (it could be both).
 func (config *Config) Validate() error {
 	if config.Username == "" {
 		return errors.New("username is empty string")

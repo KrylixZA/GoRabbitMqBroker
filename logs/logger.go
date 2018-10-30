@@ -20,7 +20,7 @@ type Logger struct {
 }
 
 //LogError writes a panic message to the console.
-//		log.Panicf will print out the error to the console and terminate execution with a pnic.
+//		log.Panicf will print out the error to the console and terminate execution with a panic.
 func (Logger) LogError(err error, message string) {
 	if err != nil {
 		log.Panicf("ERROR %s: %s", message, err)
