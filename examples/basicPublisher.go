@@ -25,7 +25,7 @@ func main() {
 	}
 
 	broker := broker.NewMessagePublisher(publisherConfig, logs.Logger{})
-	defer broker.CloseConnection()
+	defer broker.Close()
 
 	testDataPayload := basicDistributedMessage{
 		Data: "My test message",

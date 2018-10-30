@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
 )
 
 func TestValidate_GivenValidConfig_ShouldReturnNil(t *testing.T) {

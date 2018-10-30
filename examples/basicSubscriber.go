@@ -3,14 +3,11 @@ package main
 import (
 	"log"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/logs"
-
 	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
-
-	"github.com/KrylixZA/GoRabbitMqBroker/processing"
-
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
+	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
+	"github.com/KrylixZA/GoRabbitMqBroker/processing"
 )
 
 func main() {
@@ -33,7 +30,7 @@ func main() {
 	}
 
 	broker := broker.NewMessageSubscriber(subscriberConfig, logs.Logger{})
-	defer broker.CloseConnection()
+	defer broker.Close()
 
 	var subscriber processing.IMessageHandler
 	subscriber = basicSubscriber{}

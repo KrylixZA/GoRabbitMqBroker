@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
 )
 
 //Config describes all the shared configurations needed to connect to RabbitMQ.
