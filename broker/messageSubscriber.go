@@ -3,7 +3,7 @@ package broker
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"sync"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
@@ -88,12 +88,14 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 		subscriber.logger.LogError(err, fmt.Sprintf("Error occurred while attempting to setup consumer on channel againt queue %s", subscriber.config.QueueName))
 	}
 
-	forever := make(chan bool)
+	wg := sync.WaitGroup{}
 
-	go func() {
-		for message := range messages {
+	for message := range messages {
+		wg.Add(1)
+		go func(message amqp.Delivery) {
+			defer wg.Done()
 			distributedMessage := models.DistributedMessage{}
-			err = json.Unmarshal(message.Body, &distributedMessage.Data)
+			err := json.Unmarshal(message.Body, &distributedMessage.Data)
 			if err != nil {
 				message.Nack(false, subscriber.config.RequeueOnNack)
 				subscriber.logger.LogWarning(fmt.Sprintf("Error occurred while trying to parse message from RabbitMQ to DistributedMessage struct\n\n%s",
@@ -110,14 +112,9 @@ func (subscriber *messageSubscriber) subscribe(handler processing.IMessageHandle
 					err))
 			}
 			message.Ack(false) //Acknowledge just this message.
-		}
-
-		log.Println("Finished processing all messages on queue... ")
-		log.Println("[*] Waiting for messages. To exit press CTRL+C")
-	}()
-
-	log.Println("[*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+		}(message)
+	}
+	wg.Wait()
 
 	return nil
 }

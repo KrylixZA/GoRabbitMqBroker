@@ -1,6 +1,9 @@
 package main
 
 import (
+	"flag"
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
@@ -11,6 +14,10 @@ import (
 )
 
 func main() {
+	numOfMsgsToPublish := flag.Int("n", 1, "Defines the number of messages to publish to RabbitMQ.")
+	flag.Parse()
+	log.Printf("Publishing %d messages...", *numOfMsgsToPublish)
+
 	publisherConfig := models.Config{
 		Username:     "admin",
 		Password:     "admin",
@@ -27,11 +34,13 @@ func main() {
 	broker := broker.NewMessagePublisher(publisherConfig, logs.Logger{})
 	defer broker.Close()
 
-	testDataPayload := basicDistributedMessage{
-		Data: "My test message",
-	}
+	for i := 0; i < *numOfMsgsToPublish; i++ {
+		testDataPayload := basicDistributedMessage{
+			Data: fmt.Sprintf("[%d] My test message", i),
+		}
 
-	broker.Publish("myTestRoutingKey", testDataPayload)
+		broker.Publish("myTestRoutingKey", testDataPayload)
+	}
 }
 
 type basicDistributedMessage struct {
