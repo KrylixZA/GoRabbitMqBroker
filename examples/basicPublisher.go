@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
 	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
@@ -18,7 +18,7 @@ func main() {
 		VirtualHost:  "/",
 		PublisherConfig: &models.PublisherConfig{
 			ExchangeName:       "amq.topic",
-			BindingType:        bindingtype.Topic,
+			BindingType:        bindingType.Topic,
 			Durable:            true,
 			MandatoryQueueBind: false,
 		},

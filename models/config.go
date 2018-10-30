@@ -3,7 +3,7 @@ package models
 import (
 	"errors"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
 )
 
 //Config describes all the shared configurations needed to connect to RabbitMQ.
@@ -41,7 +41,7 @@ type Config struct {
 type SubscriberConfig struct {
 	QueueName       string                  `json:"queueName" doc:"The name of the queue to subscribe to"`
 	ExchangeName    string                  `json:"exchangeName" doc:"The name of the exchange the queue is bound to"`
-	BindingType     bindingtype.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
+	BindingType     bindingType.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
 	RoutingKey      string                  `json:"routingKey" doc:"The routing key that binds the queeu to the exchange"`
 	PrefetchCount   int                     `json:"prefetchCount" doc:"The maximum amount of messages to consume at once"`
 	StrictQueueName bool                    `json:"strictQueueName" doc:"Set to true if queue names must be defined. If false, RabbitMQ will auto-generate queue names. Default value is false"`
@@ -58,7 +58,7 @@ type SubscriberConfig struct {
 //MandatoryQueueBind is a condition set when publishing to know if a queue is bound to the exchange. If this is set to true, and no queue is bound, publishing will fail.
 type PublisherConfig struct {
 	ExchangeName       string                  `json:"exchangeName" doc:"The exchange to publish to"`
-	BindingType        bindingtype.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
+	BindingType        bindingType.BindingType `json:"bindingType,int" doc:"The type of binding the queue should use when binding to the queue. Default is fanout"`
 	Durable            bool                    `json:"durable" doc:"Set to true if RabbitMQ should persist the messages to cache/disk if they are not acknowledged in the event of a crash or restart. Default is false"`
 	MandatoryQueueBind bool                    `json:"mandatoryQueueBind" doc:"Set to true if a queue must be bound to the queue for publishing to be successful. Default is false."`
 }
@@ -109,7 +109,7 @@ func (config *SubscriberConfig) Validate() error {
 	if config.BindingType < 0 || config.BindingType > 2 {
 		return errors.New("subscriberConfig.bindingType is out of range. Acceptable options are 0 = Fanout, 1 = Direct, 2 = Topic")
 	}
-	if (config.BindingType == bindingtype.Direct || config.BindingType == bindingtype.Topic) && config.RoutingKey == "" {
+	if (config.BindingType == bindingType.Direct || config.BindingType == bindingType.Topic) && config.RoutingKey == "" {
 		return errors.New("subscriberConfig.routingKey is empty string. Cannot use an empty routing key to bind a queue to an exchange when using Direct or Topic based routing")
 	}
 	if config.PrefetchCount < 0 {

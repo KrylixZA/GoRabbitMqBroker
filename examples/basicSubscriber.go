@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/KrylixZA/GoRabbitMqBroker/bindingtype"
+	"github.com/KrylixZA/GoRabbitMqBroker/bindingType"
 	"github.com/KrylixZA/GoRabbitMqBroker/broker"
 	"github.com/KrylixZA/GoRabbitMqBroker/logs"
 	"github.com/KrylixZA/GoRabbitMqBroker/models"
@@ -19,7 +19,7 @@ func main() {
 		SubscriberConfig: &models.SubscriberConfig{
 			QueueName:       "myTestQueue",
 			ExchangeName:    "amq.topic",
-			BindingType:     bindingtype.Topic,
+			BindingType:     bindingType.Topic,
 			RoutingKey:      "*",
 			PrefetchCount:   1,
 			StrictQueueName: true,
