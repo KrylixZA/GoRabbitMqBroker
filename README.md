@@ -28,11 +28,11 @@ $ brew services start rabbitmq
 1. All your code will communicate with RabbitMQ through [messageBroker.go](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go).
 2. You will need to make use of the configuration defined [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/config.go).
 3. You will, likely, also need to make use of the Binding Type enumeration defined [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/bindingType/bindingTypes.go).
-4. Publishers need only interact with the [NewMessagePublisher definition](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L70).
-5. Subscribers will need to interact with [NewMessageSubscriber definition](hhttps://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L41) and the [IMessageHandler interface](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/processing/messageHandler.go#L9).
-6. Publishers and subscribes will need to interact with [NewMessagePublisherSubscriber definition](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L94) and the [IMessageHandler interface](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/processing/messageHandler.go#L9).
+4. Publishers need only interact with the [NewMessagePublisher definition](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L80).
+5. Subscribers will need to interact with [NewMessageSubscriber definition](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L51) and the [IMessageHandler interface](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/processing/messageHandler.go#L14).
+6. Publishers and subscribes will need to interact with [NewMessagePublisherSubscriber definition](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go#L110) and the [IMessageHandler interface](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/processing/messageHandler.go#L14).
 7. All messages that flow through RabbitMQ via the [messageBroker.go](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/broker/messageBroker.go) are an implementation of the [IDistributedMessage interface](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24).
-8. All subscribers receive a concrete implementation of [IDistributedMessage](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24) in the form of [DistributedMessage](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24).
+8. All subscribers receive a concrete implementation of [IDistributedMessage](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24).
 9. All publishers must publish a struct which implements [IDistributedMessage](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24).
 
 ### Examples
