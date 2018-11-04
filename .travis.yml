@@ -1,0 +1,11 @@
+language: go
+go:
+  - 1.10.3
+
+before_install:
+    - go get github.com/streadway/amqp
+    - go get github.com/stretchr/testify/assert
+
+script:
+    - go build -i github.com/KrylixZA/GoRabbitMqBroker/broker
+    - go test  -i github.com/KrylixZA/GoRabbitMqBroker/models
