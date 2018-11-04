@@ -36,13 +36,13 @@ $ brew services start rabbitmq
 9. All publishers must publish a struct which implements [IDistributedMessage](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/models/distributedMessage.go#L24).
 
 ### Examples
-1. An example of a basic publisher can be found [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/examples/basicPublisher.go). To run this:
+1. An example of a basic publisher can be found [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/examples/publisher/basicPublisher.go). To run this:
 ```bash
-$ cd ${GOPATH}/src/github.com/KrylixZA/GoRabbitMqBroker/examples
+$ cd ${GOPATH}/src/github.com/KrylixZA/GoRabbitMqBroker/examples/publisher
 $ go run basicPublisher.go
 ```
-2. An example of a basic subscriber can be found [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/examples/basicSubscriber.go). To run this:
+2. An example of a basic subscriber can be found [here](https://github.com/KrylixZA/GoRabbitMqBroker/blob/master/examples/subscriber/basicSubscriber.go). To run this:
 ```bash
-$ cd ${GOPATH}/src/github.com/KrylixZA/GoRabbitMqBroker/examples
+$ cd ${GOPATH}/src/github.com/KrylixZA/GoRabbitMqBroker/examples/subscriber
 $ go run basicSubscriber.go
 ```
